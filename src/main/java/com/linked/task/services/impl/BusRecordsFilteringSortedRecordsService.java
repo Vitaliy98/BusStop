@@ -1,8 +1,8 @@
-package com.linked.task.services;
+package com.linked.task.services.impl;
 
-import com.linked.task.comparators.BusRecordComparator;
 import com.linked.task.entities.BusCompany;
 import com.linked.task.entities.BusRecord;
+import com.linked.task.services.BusRecordsFilteringService;
 import com.linked.task.utils.BusRecordUtils;
 
 import java.util.ArrayList;
@@ -12,12 +12,16 @@ import java.util.stream.IntStream;
 
 import static com.linked.task.entities.BusCompany.Grotty;
 import static com.linked.task.utils.BusRecordUtils.*;
+import static com.linked.task.utils.BusRecordUtils.isArriveAtSameTime;
 
-public class BusRecordSortService implements SortService {
-    private final BusRecordComparator busRecordComparator = new BusRecordComparator();
+/**
+ * Class for filter and removing all ineffective records from list.
+ * Note: all records in the list should be already sorted, if not algorithm is ineffective.
+ */
+public class BusRecordsFilteringSortedRecordsService implements BusRecordsFilteringService {
 
-    public void sortAllRecords(List<BusRecord> busRecords) {
-        busRecords.sort(busRecordComparator);
+    @Override
+    public void filterRecords(List<BusRecord> busRecords) {
         busRecords.removeIf(BusRecordUtils::isTakeMoreThanHour);
         removeIneffectiveRecords(busRecords);
         removeSimilarRecords(busRecords);
@@ -64,7 +68,6 @@ public class BusRecordSortService implements SortService {
         busRecords.removeAll(recordsToRemove);
     }
 
-
     protected void removeSimilarRecords(List<BusRecord> records) {
         List<BusRecord> recordsToRemove = new ArrayList<>();
         OptionalInt indexOpt = findIndexOfStartCompanyRecords(records, Grotty);
@@ -77,14 +80,12 @@ public class BusRecordSortService implements SortService {
 
             for (BusRecord record : poshRecords) {
                 grottyRecords.stream()
-                        .filter(busRecord -> !busRecord.getBusCompany().equals(record.getBusCompany()))
                         .filter(busRecord -> isStartsAtSameTime(busRecord, record) && isArriveAtSameTime(busRecord, record))
                         .findAny()
                         .ifPresent(recordsToRemove::add);
             }
             records.removeAll(recordsToRemove);
         }
-
     }
 
     protected OptionalInt findIndexOfStartCompanyRecords(List<BusRecord> records, final BusCompany busCompany) {
