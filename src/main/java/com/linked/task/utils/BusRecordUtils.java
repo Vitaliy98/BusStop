@@ -26,6 +26,6 @@ public class BusRecordUtils {
     }
 
     public static boolean isTakeMoreThanHour(BusRecord busRecord) {
-        return ChronoUnit.HOURS.between(busRecord.getArrivalTime(), busRecord.getDepartureTime()) >= 1;
+        return ChronoUnit.HOURS.between(busRecord.getArrivalTime(), busRecord.getDepartureTime()) < 0;
     }
 }

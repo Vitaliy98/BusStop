@@ -8,13 +8,9 @@ import org.slf4j.LoggerFactory;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
 import java.time.LocalTime;
 import java.util.Collections;
-import java.util.Date;
 import java.util.List;
-import java.util.Locale;
 import java.util.stream.Collectors;
 
 public class BusRecordsTextFileReaderImpl implements BusRecordsFileReader {
@@ -28,6 +24,8 @@ public class BusRecordsTextFileReaderImpl implements BusRecordsFileReader {
                     .collect(Collectors.toList());
         } catch (IOException exception) {
             LOG.error("Error during opening file: ", exception);
+        } catch (IllegalArgumentException exception) {
+            LOG.error("Incorrect format of values in input file.");
         }
         return Collections.emptyList();
     }
@@ -41,8 +39,7 @@ public class BusRecordsTextFileReaderImpl implements BusRecordsFileReader {
 
             return new BusRecord(BusCompany.valueOf(company), departureTime, arrivalTime);
         } else {
-            LOG.error("Incorrect format of values.");
+            throw new IllegalArgumentException();
         }
-        return null;
     }
 }
